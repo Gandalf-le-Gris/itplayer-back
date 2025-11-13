@@ -1,6 +1,6 @@
 const pool = require("./db");
 
-class UserDao {
+class UsersDao {
   async existsByUsername(username) {
     return pool.query("SELECT * FROM users WHERE username=$1", [username]);
   }
@@ -17,4 +17,4 @@ class UserDao {
   }
 }
 
-module.exports = new UserDao();
+module.exports = new UsersDao();

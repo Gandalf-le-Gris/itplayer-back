@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const userDao = require("../db/user");
+const usersDao = require("../db/users");
 
 router.post("/register", async (req, res) => {
   try {
@@ -10,14 +10,16 @@ router.post("/register", async (req, res) => {
     if (!username || !password)
       return res.status(400).json({ error: "error.required.generic" });
 
-    const existing = await userDao.existsByUsername(username);
+    const existing = await usersDao.existsByUsername(username);
     if (existing.rows.length > 0)
       return res.status(400).json({ error: "error.user.user-already-exists" });
 
     const hash = await bcrypt.hash(password, 10);
-    await userDao.save(username, hash);
+    await usersDao.save(username, hash);
 
-    res.status(201).json({});
+    const token = jwt.sign({ userId: user.id, username: user.username }, process.env.JWT_SECRET);
+
+    res.status(201).json({ token });
   } catch (err) {
     console.error(err);
     res.status(500).json({});
@@ -30,7 +32,7 @@ router.post("/login", async (req, res) => {
     if (!username || !password)
       return res.status(400).json({ error: "error.required.generic" });
 
-    const result = await userDao.findByUsername(username);
+    const result = await usersDao.findByUsername(username);
     const user = result.rows[0];
     if (!user) return res.status(400).json({ error: "error.user.wrong-credentials" });
 
@@ -70,4 +72,4 @@ function authenticateToken(req, res, next) {
   });
 }
 
-module.exports = router;
+module.exports = { authRoutes: router , authenticateToken };
