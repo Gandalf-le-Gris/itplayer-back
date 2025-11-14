@@ -8,10 +8,10 @@ class YoutubeService {
   }
 
   public async search(query: string) {
-      return await this.yt?.search(query, {
-        type: 'video',
-        sort_by: 'view_count'
-      }) ?? [];
+    return await this.yt?.search(query, {
+      type: 'video',
+      sort_by: 'relevance',
+    }) ?? [];
   }
 }
 
